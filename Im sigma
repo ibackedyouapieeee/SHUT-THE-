@@ -1,0 +1,122 @@
+--[=[
+GUI Executor z serverside + TextBox (po prawej, nie draggable)
+]=]
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CollectionService = game:GetService("CollectionService")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-- Tworzenie RemoteEvent
+local ExecuteScript = ReplicatedStorage:FindFirstChild("ExecuteScript")
+if not ExecuteScript then
+    ExecuteScript = Instance.new("RemoteEvent")
+    ExecuteScript.Name = "ExecuteScript"
+    ExecuteScript.Parent = ReplicatedStorage
+end
+
+-- GUI
+local G2L = {}
+
+G2L["ScreenGui_1"] = Instance.new("ScreenGui", PlayerGui)
+G2L["ScreenGui_1"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+CollectionService:AddTag(G2L["ScreenGui_1"], "main")
+
+-- Frame
+G2L["Frame_2"] = Instance.new("Frame", G2L["ScreenGui_1"])
+G2L["Frame_2"].BorderSizePixel = 0
+G2L["Frame_2"].BackgroundColor3 = Color3.fromRGB(108, 108, 108)
+G2L["Frame_2"].Size = UDim2.new(0, 456, 0, 274)
+G2L["Frame_2"].Position = UDim2.new(1, -466, 0, 56) -- po prawej stronie
+G2L["Frame_2"].Draggable = false
+G2L["Frame_2"].Active = true
+
+-- TextLabel nagłówek
+G2L["TextLabel_d"] = Instance.new("TextLabel", G2L["ScreenGui_1"])
+G2L["TextLabel_d"].TextWrapped = true
+G2L["TextLabel_d"].BorderSizePixel = 0
+G2L["TextLabel_d"].TextScaled = true
+G2L["TextLabel_d"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+G2L["TextLabel_d"].Size = UDim2.new(0, 320, 0, 24)
+G2L["TextLabel_d"].Text = "NovaLay executor by krystal team v2"
+G2L["TextLabel_d"].Position = UDim2.new(1, -426, 0, 62)
+
+-- ImageLabel
+G2L["ImageLabel_e"] = Instance.new("ImageLabel", G2L["ScreenGui_1"])
+G2L["ImageLabel_e"].BorderSizePixel = 0
+G2L["ImageLabel_e"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+G2L["ImageLabel_e"].Image = "rbxassetid://278201190"
+G2L["ImageLabel_e"].Size = UDim2.new(0, 52, 0, 50)
+G2L["ImageLabel_e"].Rotation = -10
+G2L["ImageLabel_e"].Position = UDim2.new(1, -466, 0, 42)
+
+-- TextBox
+G2L["TextBox_c"] = Instance.new("TextBox", G2L["ScreenGui_1"])
+G2L["TextBox_c"].CursorPosition = -1
+G2L["TextBox_c"].TextXAlignment = Enum.TextXAlignment.Left
+G2L["TextBox_c"].TextYAlignment = Enum.TextYAlignment.Top
+G2L["TextBox_c"].TextSize = 18
+G2L["TextBox_c"].BorderSizePixel = 0
+G2L["TextBox_c"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+G2L["TextBox_c"].Size = UDim2.new(0, 314, 0, 168)
+G2L["TextBox_c"].Position = UDim2.new(1, -438, 0, 92)
+G2L["TextBox_c"].Text = "Require(ID).Module('user')"
+
+-- Execute Button
+G2L["TextButton_b"] = Instance.new("TextButton", G2L["ScreenGui_1"])
+G2L["TextButton_b"].BorderSizePixel = 0
+G2L["TextButton_b"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+G2L["TextButton_b"].Size = UDim2.new(0, 104, 0, 18)
+G2L["TextButton_b"].Text = "Execute"
+G2L["TextButton_b"].Position = UDim2.new(1, -438, 0, 282)
+
+-- Clear Button
+G2L["TextButton_3"] = Instance.new("TextButton", G2L["Frame_2"])
+G2L["TextButton_3"].BorderSizePixel = 0
+G2L["TextButton_3"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+G2L["TextButton_3"].Size = UDim2.new(0, 104, 0, 18)
+G2L["TextButton_3"].Text = "Clear"
+G2L["TextButton_3"].Position = UDim2.new(0, 194, 0, 226)
+
+-- ScrollingFrame
+G2L["ScrollingFrame_4"] = Instance.new("ScrollingFrame", G2L["ScreenGui_1"])
+G2L["ScrollingFrame_4"].BorderSizePixel = 0
+G2L["ScrollingFrame_4"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+G2L["ScrollingFrame_4"].Size = UDim2.new(0, 70, 0, 228)
+G2L["ScrollingFrame_4"].Position = UDim2.new(1, -136, 0, 82)
+
+-- Tworzenie przycisków w ScrollingFrame
+local function CreateButton(name, posY)
+    local btn = Instance.new("TextButton", G2L["ScrollingFrame_4"])
+    btn.BorderSizePixel = 0
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.BackgroundColor3 = Color3.fromRGB(66, 66, 66)
+    btn.Size = UDim2.new(0, 58, 0, 24)
+    btn.Text = name
+    btn.Position = UDim2.new(0, 8, 0, posY)
+    return btn
+end
+
+local Buttons = {
+    ["Polaria"] = CreateButton("Polaria", 60),
+    ["Happy hub"] = CreateButton("Happy hub", 84),
+    ["k00pgui v9"] = CreateButton("k00pgui v9", 110)
+}
+
+-- LocalScript dla wszystkich przycisków + Execute + Clear
+for name, btn in pairs(Buttons) do
+    btn.MouseButton1Click:Connect(function()
+        ExecuteScript:FireServer(name)
+    end)
+end
+
+G2L["TextButton_b"].MouseButton1Click:Connect(function()
+    ExecuteScript:FireServer(G2L["TextBox_c"].Text)
+end)
+
+G2L["TextButton_3"].MouseButton1Click:Connect(function()
+    G2L["TextBox_c"].Text = ""
+end)
+
+return G2L["ScreenGui_1"], ExecuteScript
