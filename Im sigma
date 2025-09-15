@@ -1,20 +1,11 @@
---[=[
-GUI Executor z serverside + TextBox (po prawej, nie draggable)
-]=]
-
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService = game:GetService("CollectionService")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- Tworzenie RemoteEvent
-local ExecuteScript = ReplicatedStorage:FindFirstChild("ExecuteScript")
-if not ExecuteScript then
-    ExecuteScript = Instance.new("RemoteEvent")
-    ExecuteScript.Name = "ExecuteScript"
-    ExecuteScript.Parent = ReplicatedStorage
-end
+-- RemoteEvent z serwera
+local ExecuteScript = ReplicatedStorage:WaitForChild("ExecuteScript")
 
 -- GUI
 local G2L = {}
@@ -23,16 +14,16 @@ G2L["ScreenGui_1"] = Instance.new("ScreenGui", PlayerGui)
 G2L["ScreenGui_1"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 CollectionService:AddTag(G2L["ScreenGui_1"], "main")
 
--- Frame
+-- Frame po prawej
 G2L["Frame_2"] = Instance.new("Frame", G2L["ScreenGui_1"])
 G2L["Frame_2"].BorderSizePixel = 0
 G2L["Frame_2"].BackgroundColor3 = Color3.fromRGB(108, 108, 108)
 G2L["Frame_2"].Size = UDim2.new(0, 456, 0, 274)
-G2L["Frame_2"].Position = UDim2.new(1, -466, 0, 56) -- po prawej stronie
+G2L["Frame_2"].Position = UDim2.new(1, -466, 0, 56)
 G2L["Frame_2"].Draggable = false
 G2L["Frame_2"].Active = true
 
--- TextLabel nagłówek
+-- Nagłówek
 G2L["TextLabel_d"] = Instance.new("TextLabel", G2L["ScreenGui_1"])
 G2L["TextLabel_d"].TextWrapped = true
 G2L["TextLabel_d"].BorderSizePixel = 0
@@ -42,7 +33,7 @@ G2L["TextLabel_d"].Size = UDim2.new(0, 320, 0, 24)
 G2L["TextLabel_d"].Text = "NovaLay executor by krystal team v2"
 G2L["TextLabel_d"].Position = UDim2.new(1, -426, 0, 62)
 
--- ImageLabel
+-- Logo
 G2L["ImageLabel_e"] = Instance.new("ImageLabel", G2L["ScreenGui_1"])
 G2L["ImageLabel_e"].BorderSizePixel = 0
 G2L["ImageLabel_e"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -61,7 +52,7 @@ G2L["TextBox_c"].BorderSizePixel = 0
 G2L["TextBox_c"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 G2L["TextBox_c"].Size = UDim2.new(0, 314, 0, 168)
 G2L["TextBox_c"].Position = UDim2.new(1, -438, 0, 92)
-G2L["TextBox_c"].Text = "Require(ID).Module('user')"
+G2L["TextBox_c"].Text = 'require(ID).Module("user")'
 
 -- Execute Button
 G2L["TextButton_b"] = Instance.new("TextButton", G2L["ScreenGui_1"])
@@ -79,14 +70,15 @@ G2L["TextButton_3"].Size = UDim2.new(0, 104, 0, 18)
 G2L["TextButton_3"].Text = "Clear"
 G2L["TextButton_3"].Position = UDim2.new(0, 194, 0, 226)
 
--- ScrollingFrame
+-- Scrolling Frame z presetami
 G2L["ScrollingFrame_4"] = Instance.new("ScrollingFrame", G2L["ScreenGui_1"])
 G2L["ScrollingFrame_4"].BorderSizePixel = 0
 G2L["ScrollingFrame_4"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 G2L["ScrollingFrame_4"].Size = UDim2.new(0, 70, 0, 228)
 G2L["ScrollingFrame_4"].Position = UDim2.new(1, -136, 0, 82)
+G2L["ScrollingFrame_4"].CanvasSize = UDim2.new(0, 0, 0, 200)
 
--- Tworzenie przycisków w ScrollingFrame
+-- Funkcja do tworzenia przycisków w ScrollingFrame
 local function CreateButton(name, posY)
     local btn = Instance.new("TextButton", G2L["ScrollingFrame_4"])
     btn.BorderSizePixel = 0
@@ -98,25 +90,25 @@ local function CreateButton(name, posY)
     return btn
 end
 
+-- Presety
 local Buttons = {
-    ["Polaria"] = CreateButton("Polaria", 60),
-    ["Happy hub"] = CreateButton("Happy hub", 84),
-    ["k00pgui v9"] = CreateButton("k00pgui v9", 110)
+    ["k00pgui v9"] = CreateButton("k00pgui v9", 10),
+    ["server admin"] = CreateButton("server admin", 40)
 }
 
--- LocalScript dla wszystkich przycisków + Execute + Clear
+-- Podłączenie przycisków do RemoteEvent
 for name, btn in pairs(Buttons) do
     btn.MouseButton1Click:Connect(function()
-        ExecuteScript:FireServer(name)
+        ExecuteScript:FireServer(string.lower(name))
     end)
 end
 
+-- Execute z TextBox
 G2L["TextButton_b"].MouseButton1Click:Connect(function()
     ExecuteScript:FireServer(G2L["TextBox_c"].Text)
 end)
 
+-- Clear TextBox
 G2L["TextButton_3"].MouseButton1Click:Connect(function()
     G2L["TextBox_c"].Text = ""
 end)
-
-return G2L["ScreenGui_1"], ExecuteScript
